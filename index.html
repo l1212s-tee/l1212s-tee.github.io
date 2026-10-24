@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xuanyi | 个人主页</title>
+<meta name="description" content="Xuanyi's academic homepage / personal CV">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ========= 顶部语言切换 ========= -->
+<div class="langbar">
+  <button class="lang-btn" data-lang="zh">中文</button>
+  <button class="lang-btn" data-lang="en">EN</button>
+</div>
+
+<div class="container">
+
+  <!-- ========= 个人简介卡片 ========= -->
+  <header class="intro">
+    <img class="avatar" src="images/profile.svg" alt="Xuanyi" onerror="this.style.visibility='hidden'">
+    <div class="intro-text">
+      <h1 lang="zh">宣毅(Xuanyi)</h1>
+      <h1 lang="en" style="display:none">Xuanyi</h1>
+
+      <!-- 中文版 -->
+      <div lang="zh">
+        <p class="title">职称 / 单位</p>
+        <p class="affil">XXX 大学 · 研究所 · 公司</p>
+        <p class="email">you@example.com</p>
+      </div>
+      <!-- English -->
+      <div lang="en" style="display:none">
+        <p class="title">Title / Position</p>
+        <p class="affil">Affiliation / Institution</p>
+        <p class="email">you@example.com</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========= Biography ========= -->
+  <section>
+    <h2 lang="zh">个人简介(Biography)</h2>
+    <h2 lang="en" style="display:none">Biography</h2>
+
+    <div lang="zh">
+      <p>【在此填写】一段关于你的介绍:研究方向、亮点、爱好等。</p>
+    </div>
+    <div lang="en" style="display:none">
+      <p>[TODO] Write a short introduction: research interests, highlights, interests.</p>
+    </div>
+  </section>
+
+  <!-- ========= News ========= -->
+  <section>
+    <h2 lang="zh">近况(News)</h2>
+    <h2 lang="en" style="display:none">News</h2>
+
+    <div lang="zh">
+      <ul class="news">
+        <li><time>2026-10</time>【在此填写】一条动态。</li>
+        <li><time>2026-05</time>【在此填写】另一条动态。</li>
+      </ul>
+    </div>
+    <div lang="en" style="display:none">
+      <ul class="news">
+        <li><time>2026-10</time>[TODO] One news item.</li>
+        <li><time>2026-05</time>[TODO] Another news item.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========= Publications ========= -->
+  <section>
+    <h2 lang="zh">论文发表(Publications)</h2>
+    <h2 lang="en" style="display:none">Publications</h2>
+    <p class="hint" lang="zh">更新日期:2026-10</p>
+    <p class="hint" lang="en" style="display:none">Updated: 2026-10</p>
+
+    <!-- 复制下面这个 li 来加论文。注意:lang 设置为 zh/en 的内容都要填。 -->
+    <ol class="pubs" lang="zh">
+      <li>
+        <strong>论文标题 Title of the paper</strong><br>
+        Author A, Author B, <u><b>Xuanyi</b></u>, Author C*<br>
+        <em>Venue (CCF-A)</em>　
+        [<a href="#">PDF</a>] [<a href="#">Code</a>]
+      </li>
+      <li>
+        <strong>第二篇论文</strong><br>
+        Author A, <u><b>Xuanyi</b></u>*<br>
+        <em>Journal (CCF-A)</em>　
+        [<a href="#">PDF</a>]
+      </li>
+    </ol>
+
+    <ol class="pubs" lang="en" style="display:none">
+      <li>
+        <strong>Title of the paper</strong><br>
+        Author A, Author B, <u><b>Xuanyi</b></u>, Author C*<br>
+        <em>Venue (CCF-A)</em>　
+        [<a href="#">PDF</a>] [<a href="#">Code</a>]
+      </li>
+      <li>
+        <strong>Second paper title</strong><br>
+        Author A, <u><b>Xuanyi</b></u>*<br>
+        <em>Journal (CCF-A)</em>　
+        [<a href="#">PDF</a>]
+      </li>
+    </ol>
+
+    <p class="hint" lang="zh">完整列表请见 [<a href="#">Google Scholar</a>]。* 通讯作者。</p>
+    <p class="hint" lang="en" style="display:none">Full list on [<a href="#">Google Scholar</a>]. * Corresponding author.</p>
+  </section>
+
+  <!-- ========= Awards ========= -->
+  <section>
+    <h2 lang="zh">获奖(Awards)</h2>
+    <h2 lang="en" style="display:none">Awards</h2>
+    <ul lang="zh">
+      <li>【在此填写】2026 XXX 奖</li>
+    </ul>
+    <ul lang="en" style="display:none">
+      <li>[TODO] 2026 XXX Award</li>
+    </ul>
+  </section>
+
+  <!-- ========= Teaching / Courses ========= -->
+  <section>
+    <h2 lang="zh">教学(Courses)</h2>
+    <h2 lang="en" style="display:none">Teaching / Courses</h2>
+    <ul lang="zh">
+      <li>【在此填写】课程名称(年份)</li>
+    </ul>
+    <ul lang="en" style="display:none">
+      <li>[TODO] Course name (year)</li>
+    </ul>
+  </section>
+
+  <!-- ========= Services ========= -->
+  <section>
+    <h2 lang="zh">专业服务(Services)</h2>
+    <h2 lang="en" style="display:none">Professional Services</h2>
+    <ul lang="zh">
+      <li>【在此填写】审稿 / PC 等</li>
+    </ul>
+    <ul lang="en" style="display:none">
+      <li>[TODO] reviewer / PC etc.</li>
+    </ul>
+  </section>
+
+  <!-- ========= Students ========= -->
+  <section>
+    <h2 lang="zh">学生(Students)</h2>
+    <h2 lang="en" style="display:none">Students</h2>
+    <ul lang="zh">
+      <li>【在此填写】博士 / 硕士 名单(可选)</li>
+    </ul>
+    <ul lang="en" style="display:none">
+      <li>[TODO] PhD / Master students (optional)</li>
+    </ul>
+  </section>
+
+  <!-- ========= Useful Links ========= -->
+  <section>
+    <h2 lang="zh">友情链接(Useful Links)</h2>
+    <h2 lang="en" style="display:none">Useful Links</h2>
+    <ul lang="zh">
+      <li><a href="#">链接一</a></li>
+      <li><a href="#">链接二</a></li>
+    </ul>
+    <ul lang="en" style="display:none">
+      <li><a href="#">Link one</a></li>
+      <li><a href="#">Link two</a></li>
+    </ul>
+  </section>
+
+  <footer lang="zh">最后更新:2026 年 10 月</footer>
+  <footer lang="en" style="display:none">Last updated: Oct. 2026</footer>
+
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

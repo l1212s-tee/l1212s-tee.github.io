@@ -1,0 +1,110 @@
+/* ===== 学术主页样式 —— 对标 heartever.github.io 的简洁风格 ===== */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #222;
+  background: #fff;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 28px 60px;
+}
+
+/* ---- 顶部语言切换 ---- */
+.langbar {
+  position: fixed;
+  top: 0; right: 0; left: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+.lang-btn {
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 4px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.lang-btn.active {
+  background: #375e97;
+  color: #fff;
+  border-color: #375e97;
+}
+
+/* ---- 简介卡片 ---- */
+.intro {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  margin-top: 70px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #eaeaea;
+}
+.avatar {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  flex-shrink: 0;
+}
+.intro-text h1 { margin: 0 0 6px; font-size: 30px; }
+.title { font-size: 17px; font-weight: bold; margin: 2px 0; }
+.affil { margin: 2px 0; color: #555; }
+.email { margin: 2px 0; color: #375e97; }
+
+/* ---- 章节 ---- */
+section { margin-top: 34px; }
+section h2 {
+  font-size: 22px;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+}
+.hint { color: #666; font-size: 14px; }
+
+/* ---- 列表 ---- */
+ul { padding-left: 22px; margin: 6px 0; }
+li { margin: 4px 0; }
+.news li time { color: #888; margin-right: 10px; font-size: 14px; }
+
+/* 论文列表 */
+ol.pubs { padding-left: 24px; }
+ol.pubs li { margin: 14px 0; }
+
+a { color: #375e97; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+footer {
+  margin-top: 40px;
+  color: #888;
+  font-size: 13px;
+  border-top: 1px solid #eaeaea;
+  padding-top: 16px;
+}
+
+/* ---- 双语显隐规则(必须有 !important 以覆盖 HTML 里的内联 display:none) ---- */
+body.lang-zh [lang="en"] { display: none !important; }
+body.lang-en [lang="zh"] { display: none !important; }
+body.lang-en [lang="en"] { display: block !important; }
+
+/* ---- 响应式(手机) ---- */
+@media (max-width: 600px) {
+  .intro { flex-direction: column; align-items: center; text-align: center; }
+  .avatar { width: 120px; height: 120px; }
+  .container { padding: 16px 16px 40px; }
+  .langbar { justify-content: center; }
+}
