@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://l1212s-tee.github.io/sitemap.xml
