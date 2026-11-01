@@ -16,3 +16,8 @@ strong { color: #222 !important; }
 code, pre { color: #333 !important; background: #f8f8f8 !important; border-color: #e5e5e5 !important; }
 th, td, hr { border-color: #e5e5e5 !important; }
 autocolor { color: #595959 !important; }
+
+/* ---- Highlighted (featured) news item ---- */
+.news-item.featured { background: #fff2cc; border-left: 3px solid #d9a404; border-radius: 4px; padding: 0.45rem 0.7rem; margin: 0.2rem 0 1.1rem 0.35rem; }
+.news-item.featured::before { top: 0.45rem; }
+.news-item.featured time { background: #f5c845; color: #5c4300; }
