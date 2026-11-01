@@ -17,4 +17,4 @@ code, pre { color: #333 !important; background: #f8f8f8 !important; border-color
 th, td, hr { border-color: #e5e5e5 !important; }
 autocolor { color: #595959 !important; }
 
-.hot { display:inline-block; background:#e02020; color:#fff; font-size:0.72em; font-weight:700; letter-spacing:0.02em; padding:0.12em 0.55em; border-radius:999px; vertical-align:middle; margin-left:0.25em; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.hot { display:inline-block; background:transparent; color:#e02020; font-size:0.72em; font-weight:700; letter-spacing:0.02em; padding:0.12em 0.2em; vertical-align:middle; }
