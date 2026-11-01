@@ -18,3 +18,5 @@ th, td, hr { border-color: #e5e5e5 !important; }
 autocolor { color: #595959 !important; }
 
 .hot { display:inline-block; background:transparent; color:#e02020; font-size:0.72em; font-weight:700; letter-spacing:0.02em; padding:0.12em 0.2em; vertical-align:middle; }
+
+.timeline-year { color:#043361; font-size:1.05em; font-weight:600; margin:1.2rem 0 0.35rem 0; padding-bottom:0.15rem; border-bottom:1px solid #e5e5e5; }
