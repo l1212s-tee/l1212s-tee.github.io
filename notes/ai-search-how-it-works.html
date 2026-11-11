@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 搜索是怎么做出来的 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="模型只做两件事：决定搜什么、决定怎么用搜回来的东西；真假、时效、延迟全压在搜索这一侧。元宝搜索单次 300ms、千亿索引召回 94%+、20 元/千次。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/ai-search-how-it-works.html">
+<meta property="og:title" content="AI 搜索是怎么做出来的">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/ai-search-how-it-works.html">
+<meta property="og:description" content="模型只做两件事：决定搜什么、决定怎么用搜回来的东西；真假、时效、延迟全压在搜索这一侧。元宝搜索单次 300ms、千亿索引召回 94%+、20 元/千次。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">AI 搜索是怎么做出来的</h1>
+    <p class="note-meta">金色传说大聪明　·　2026-10-21　·　摘要约 1100 字　·　<a href="https://mp.weixin.qq.com/s/03UCiH5uhbpiIbzYa2i2FQ" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>模型只做两件事：决定搜什么、决定怎么用搜回来的东西。真假、时效、延迟，全落在搜索这一侧。</p>
+      </blockquote>
+      <h2>机制：一次「来回」</h2>
+      <ul>
+      <li>模型发现靠自己答不了 → 写一段格式固定的检索请求（搜什么、要几条）→ 外部程序认出来去检索 → 十条结果原样贴回上下文 → 模型接着写。</li>
+      <li>用户看到的一句「明天晴，不用带伞，出处：北京日报」，背后就是这一趟来回。</li>
+      <li>读者换了三次：人读（给链接）→ 模型读（替你总结）→ Agent 读（拆子问题、一轮轮搜）。</li>
+      </ul>
+      <h2>四件被 Agent 逼出来的事</h2>
+      <h3>一、听懂检索词</h3>
+      <ul>
+      <li>搜索给 Agent 每条结果的<strong>权威等级、发布时间、排序满意度</strong>；Agent 回传<strong>最终引用了哪几条、思考过程、答案打分（answer reward）</strong>，搜索拿去改排序。</li>
+      <li>WorkBuddy 联合评测：单任务平均调用搜索 <strong>8 次 → 5 次</strong>；有开发者说以前翻 20 个网页，现在 5 个够。</li>
+      <li>排序模型：Label 模型打标 → 大尺寸 Teacher → 蒸馏成 Student 上线；样本从线上「结果不满意」的检索词里挖，交智能体标注后增量训练，迭代从<strong>按月变按天</strong>。</li>
+      </ul>
+      <h3>二、分辨真假</h3>
+      <ul>
+      <li>收录那一刻就用大模型打分，三级：<strong>站点、账号、页面</strong>——作者是谁、历史发过什么、内容有无出处。</li>
+      <li>对 AIGC 水文与 GEO（专门写给 AI 引用的内容）是攻防：单篇用识别模型打，批量账号按发布规律专项识别。</li>
+      <li>设了反爬的站点因尊重版权不收录；携程这类打不开的走三方合作。</li>
+      </ul>
+      <h3>三、补上新信息</h3>
+      <ul>
+      <li>财经/股票类站点约<strong>一小时</strong>刷一次。</li>
+      <li>比网页更快的股价、天气、航班走独立插件系统（类比谷歌 OneBox、百度「阿拉丁」），接 <strong>13 个垂直行业、157 个头部信源</strong>（腾讯自选股、飞常准、携程、京东），返回结构化卡片，中文带字段名和更新时间，模型拿到直接用。</li>
+      </ul>
+      <h3>四、压低延迟</h3>
+      <ul>
+      <li>单次 <strong>300ms 以内</strong>返回（升级前 400–500ms），连搜三轮不到一秒。</li>
+      <li>索引：倒排 + 向量合成一张<strong>千亿规模</strong>索引，召回率 <strong>94%+</strong>，平均检索 <strong>8ms</strong>。</li>
+      <li>排序：<strong>Gist Token</strong>——建索引时把每个网页压成 100 个 token 存进 KV Cache，查询时只算检索词那十几个 token，计算量只跟检索词长度有关，省约 <strong>30%</strong> 在线推理成本。</li>
+      <li>推理：一套框架跑多种卡型，单位推理成本降 <strong>90%</strong>。</li>
+      </ul>
+      <h2>搜索变成 API / MCP</h2>
+      <ul>
+      <li>腾讯云获取，标准版按量后付费 <strong>20 元/千次</strong>（一次两分钱）；每月 2000 次免费（10/10–11/30 用激活码可提到 6000 次）。</li>
+      <li><strong>只返回条目</strong>：passage/content 是原文摘录，最长约 800 / 2500 字，答案由模型自己写。Cnt 最多 50 条，可限定站点、时间范围、垂直领域（财经/新闻/党政/学术）；插件卡片与动态摘要要标准版起，权威度评分（0–5）要旗舰版。</li>
+      <li>写法三代：ChatGPT Plugin 的 yaml → Function Calling → MCP，本质都是「写给模型看的说明书」。MCP 走 initialize → tools/list → tools/call，结果与 API 完全相同，只多那份说明书。</li>
+      </ul>
+      <h2>多跳的分工</h2>
+      <p>问「2026 年诺贝尔物理学奖得主里最年轻的那位在哪所大学、现任校长是谁」，Codex 发了 6 次 tools/call，主干三跳；同一句话丢给 API 单次搜索，只回来 10 条「哈尔岑获奖」新闻，大学和校长一条都没有。</p>
+      <p>原因：第二跳该搜什么，要等第一跳读完才知道。<strong>规划只能 Agent 做，搜索只负责把每一跳搜准搜快。</strong></p>
+      <h2>值得记住的结论</h2>
+      <p>给 Agent 挑搜索，照这四条看：</p>
+      <ol>
+      <li>权威来源：财报、政策、医疗是不是官方口径</li>
+      <li>实时结构化卡片：股价、天气这类</li>
+      <li>单次是否几百毫秒，连搜几轮不卡</li>
+      <li>能否限定站点、时间、领域，让 Agent 自己收窄</li>
+      </ol>
+      <p>价格参照：2023 年底行业普遍 15–25 美元/千次（非 AI 搜索 5 美元/千次），现在已到 20 元/千次量级。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：金色传说大聪明</li>
+      <li>作者自述：ChatGPT 早期内置搜索插件的作者之一</li>
+      <li>链接：https://mp.weixin.qq.com/s/03UCiH5uhbpiIbzYa2i2FQ</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/03UCiH5uhbpiIbzYa2i2FQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/03UCiH5uhbpiIbzYa2i2FQ</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>
