@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes 手机客户端内测：手机不是新家，只是遥控器 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="Agent 没搬家，它还在你自己那台机器上；手机只是把三个动作搬到你手上——看一眼、说一句、点同意。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/hermes-mobile-client-beta.html">
+<meta property="og:title" content="Hermes 手机客户端内测：手机不是新家，只是遥控器">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/hermes-mobile-client-beta.html">
+<meta property="og:description" content="Agent 没搬家，它还在你自己那台机器上；手机只是把三个动作搬到你手上——看一眼、说一句、点同意。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">Hermes 手机客户端内测：手机不是新家，只是遥控器</h1>
+    <p class="note-meta">布鲁斯　·　2026-11-03　·　摘要约 896 字　·　<a href="https://mp.weixin.qq.com/s/fdPhpcfSBTHes8jrCNYpvw" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>Agent 没搬家，它还在你自己那台机器上；手机只是把三个动作搬到你手上——看一眼、说一句、点同意。</p>
+      </blockquote>
+      <h2>核心要点</h2>
+      <ul>
+      <li><strong>发布</strong>：2026-10-30 纽约 NousCon 放出内测，官方 X 只发了一句「That was crazy」；邀请页 hermes-agent.nousresearch.com/mobile。</li>
+      <li><strong>关键数字</strong>（2026-11-03 01:40 核对）：主线 v0.22.6（11-02，MIT）；仓库 259,742 star / 57,189 fork / 52,403 未关 issue；iOS 1.0.0(39)、Android 1.0.0(21)；TestFlight 构建 90 天到期；10-07 完成 9000 万美元 B 轮，估值 15 亿美元。</li>
+      <li><strong>三段架构</strong>：手机＝会话窗口（流式回复、审批请求、机器人、定时任务，没有模型也没有你的文件）；中间＝长期在线网关（消息、会话、权限的统一入口）；最后＝你自己的机器（模型密钥、记忆库、技能文件真正所在）。</li>
+      <li><strong>最值钱的按钮不是聊天，是审批工具调用</strong>：长任务半夜做完读文件、跑脚本、写结果，卡在「要发邮件/要删文件/要花钱调接口」这一步等人点头，一直等到第二天。</li>
+      <li><strong>九个入口</strong>：模型、技能、插件、MCP、项目、定时任务、看板、记忆、语音——不是「聊天＋设置页」的形态，最被低估的是记忆（翻它记错了什么、删掉）和定时任务。</li>
+      <li><strong>实测坑</strong>：iOS 苹果图标跳 TestFlight 返回干净的 404；Android 走 Firebase App Distribution、需 Google 登录，且早期反馈「测试人数已满」。</li>
+      <li><strong>三种形态对比</strong>：住手机（受权限限制，换机等于换助手）／住大厂云（省心但记忆技能在别人机房）／住你家（Hermes 这条，代价是常开机器＋回家的通道）。</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <p>移动端 Agent 的竞争点不在功能表，而在「权限放在谁手里」。判断一个手机 Agent 是遥控器还是替身，看它的模型密钥与记忆存在哪。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：布鲁斯AI</li>
+      <li>作者：布鲁斯</li>
+      <li>链接：https://mp.weixin.qq.com/s/fdPhpcfSBTHes8jrCNYpvw</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/fdPhpcfSBTHes8jrCNYpvw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/fdPhpcfSBTHes8jrCNYpvw</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>

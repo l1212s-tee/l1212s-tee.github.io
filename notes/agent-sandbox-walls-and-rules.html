@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 沙箱缺的那半块拼图：Kata 挡得住内核漏洞，挡不住数据外泄 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="沙箱有两半：墙管代码逃不逃得出去，规矩管代码能把什么送出去。只砌一半，另一半的威胁就没人管。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/agent-sandbox-walls-and-rules.html">
+<meta property="og:title" content="Agent 沙箱缺的那半块拼图：Kata 挡得住内核漏洞，挡不住数据外泄">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/agent-sandbox-walls-and-rules.html">
+<meta property="og:description" content="沙箱有两半：墙管代码逃不逃得出去，规矩管代码能把什么送出去。只砌一半，另一半的威胁就没人管。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">Agent 沙箱缺的那半块拼图：Kata 挡得住内核漏洞，挡不住数据外泄</h1>
+    <p class="note-meta">架构探秘　·　2026-11-10　·　摘要约 1101 字　·　<a href="https://mp.weixin.qq.com/s/R_QTjfjlEkEASN-RQzFKKA" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>沙箱有两半：墙管代码逃不逃得出去，规矩管代码能把什么送出去。只砌一半，另一半的威胁就没人管。</p>
+      </blockquote>
+      <h2>核心要点</h2>
+      <ul>
+      <li><strong>Red Hat 实验（2026-07，OpenShift 4.21）</strong>：三个同镜像、同 Agent（OpenCode）、同模型端点的 Pod，各挨两次攻击。</li>
+      <li>仅 Kata：被提示注入诱导，把整份环境变量 POST 给攻击者。</li>
+      <li>仅 OpenShell：拦住外泄，但被 CVE-2026-31431 跨容器逃逸。</li>
+      <li>两层叠加：两关全过。</li>
+      <li><strong>CVE-2026-31431（Copy Fail）</strong>：Linux 内核 AF_ALG 接口，给无特权进程页缓存写入原语，每次 4 字节，利用脚本仅 732 字节；2017 年以来内核均受影响，2026-05 进入 CISA KEV。Kata 因 virtiofs 不暴露宿主页缓存而挡住。</li>
+      <li><strong>OpenShell 的四个设计</strong>：① 执法者在 Agent 之外（Gateway + Supervisor + Sandbox，Agent 不需要知道自己被监视）；② 出站策略精确到程序/方法/路径（YAML → OPA/Rego，热加载）；③ 真实凭证不进沙箱（Agent 只拿占位符，发往授权端点才替换）；④ 权限变更需人工审批，policy prover 用形式化逻辑校验边界（对抗实验中前沿 Agent 花两小时试图说服 AI 审核者放权，失败）。</li>
+      <li><strong>规矩的边界（Lasso Security，2026-04）</strong>：默认策略放行 gh/git 访问 GitHub，攻击者借用被放行的通道——恶意仓库把令牌用表情符号编码绕过扫描，运行时还原后开 PR 带出密钥；npm 包注册定时任务做持久化，先探测哪些「域名×程序」被放行再周期性外传。<strong>策略管得住数据往哪去，评估不了意图。</strong></li>
+      <li><strong>落地三档</strong>：本机试验（OpenShell + Docker/Podman，先拒绝再放行）；团队 K8s（Kata RuntimeClass + CNI 强制 NetworkPolicy，审批接 Slack）；多租户/强监管（独立工作区 + policy prover，评估 BlueField-4 上的 Sentry 带外监控）。</li>
+      <li><strong>最小清单</strong>：出站默认拒绝、凭证通过 provider 注入、文件与进程策略创建时定死、新增权限人工审批、宿主内核及时打补丁。</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <p>注意结论来自厂商 PoC（Red Hat 卖的就是 Kata 沙箱），别当胜负榜读。真正可迁移的是结构性结论：两类威胁需要两类机制，而且「被放行的通道」永远是最短的那条攻击路径。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：架构探秘</li>
+      <li>作者：架构探秘</li>
+      <li>链接：https://mp.weixin.qq.com/s/R_QTjfjlEkEASN-RQzFKKA</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/R_QTjfjlEkEASN-RQzFKKA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/R_QTjfjlEkEASN-RQzFKKA</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>

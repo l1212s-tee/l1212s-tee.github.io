@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逆向分析 TikTok 推荐算法：50+ 个变量与端内小模型 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="推荐分数在视频播放前就已算好；端内还塞了二三十个小模型，实时读取你的物理状态来决定推什么。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/douyin-tiktok-recommendation-reverse.html">
+<meta property="og:title" content="逆向分析 TikTok 推荐算法：50+ 个变量与端内小模型">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/douyin-tiktok-recommendation-reverse.html">
+<meta property="og:description" content="推荐分数在视频播放前就已算好；端内还塞了二三十个小模型，实时读取你的物理状态来决定推什么。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">逆向分析 TikTok 推荐算法：50+ 个变量与端内小模型</h1>
+    <p class="note-meta">独元殇　·　2026-11-09　·　摘要约 561 字　·　<a href="https://mp.weixin.qq.com/s/Tz2rJVIZIHu2BW4g49w86A" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>推荐分数在视频播放前就已算好；端内还塞了二三十个小模型，实时读取你的物理状态来决定推什么。</p>
+      </blockquote>
+      <h2>核心要点</h2>
+      <ul>
+      <li><strong>来源</strong>：X 博主 @ayoships 对 TikTok App 前端的逆向推演（非官方，且属 AI 通过前端表象反推；真正的双塔召回需要与服务端交互，属入侵范畴）。</li>
+      <li><strong>端内小模型</strong>：App 内置 20~30 个 AI 小模型（不是 LLM，是推荐模型，算力要求不高），判断什么内容更有利于用户继续刷——这也是内存占用动辄几个 G 的原因之一。</li>
+      <li><strong>播放前已打分</strong>：服务器为每个视频预先计算推荐分数，预测跳过、点开、看完、点赞、打开评论区、关注作者等行为。</li>
+      <li><strong>实时采集物理状态</strong>：调用陀螺仪与运动传感器判断躺着/走着/坐着，加上充电状态、屏幕亮度、音量等 50+ 变量，实时定制推荐规则（坐地铁、深夜躺床上刷到的东西不一样）。</li>
+      <li><strong>删除与未发送的输入</strong>也计入推荐。</li>
+      <li><strong>目标导向</strong>：即使是从不点赞评论的用户，系统也会尽力促成互动。</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <p>推荐系统的护城河不在模型结构，在「上下文变量 × 小模型 × 即时反馈」这套闭环的密度。做内容或做产品时，值得反推的是它把哪些行为定义成了正反馈。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：独元殇</li>
+      <li>作者：独元殇</li>
+      <li>链接：https://mp.weixin.qq.com/s/Tz2rJVIZIHu2BW4g49w86A</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/Tz2rJVIZIHu2BW4g49w86A" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/Tz2rJVIZIHu2BW4g49w86A</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>

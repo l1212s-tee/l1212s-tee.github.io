@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用 REA 逆向复刻 Microsoft Word：8.6 万星项目实测 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="REA = Reverse Engineer Anything，一个 MCP server + Agent Skill + CLI，把 Hopper/Ghidra/IDA 统一成一套接口；作者用约两到三成 Pro 额度复刻出像素级 Word。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/rea-clone-microsoft-word.html">
+<meta property="og:title" content="用 REA 逆向复刻 Microsoft Word：8.6 万星项目实测">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/rea-clone-microsoft-word.html">
+<meta property="og:description" content="REA = Reverse Engineer Anything，一个 MCP server + Agent Skill + CLI，把 Hopper/Ghidra/IDA 统一成一套接口；作者用约两到三成 Pro 额度复刻出像素级 Word。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">用 REA 逆向复刻 Microsoft Word：8.6 万星项目实测</h1>
+    <p class="note-meta">杉森楠　·　2026-10-12　·　摘要约 669 字　·　<a href="https://mp.weixin.qq.com/s/naysTEAxEyvdGxpcBEQd_A" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>REA = Reverse Engineer Anything，一个 MCP server + Agent Skill + CLI，把 Hopper/Ghidra/IDA 统一成一套接口；作者用约两到三成 Pro 额度复刻出像素级 Word。</p>
+      </blockquote>
+      <h2>核心要点</h2>
+      <ul>
+      <li><strong>项目热度</strong>：8.6 万 star；9 月发布时几乎无增长，10 月初 10 天从几千涨到 8 万+，近一个月 99% 的下载来自这波。</li>
+      <li><strong>形态</strong>：<code>npx rea-agents setup</code> 一条命令接入，自动配置 17 个客户端（Claude Code、Codex、Cursor、Gemini CLI、Devin、OpenCode、Copilot CLI 等）。</li>
+      <li><strong>分工</strong>：REA 自己做界面解读、图标提取、窗口观察等简单部分；复杂逻辑调用 Hopper/Ghidra/IDA 取伪代码；核心价值是把多家逆向引擎统一封装，Agent 不必关心底层用哪个。</li>
+      <li><strong>成品</strong>：界面接近 1:1 像素还原，排序、标题、加粗、批注、插入表格、图片对齐、视图切换、专注模式基本可用；细节交互仍粗糙。</li>
+      <li><strong>成本</strong>：约一个 Pro 级别会员额度的 20%~30%。</li>
+      <li><strong>一个坑</strong>：用 Claude Code 装 REA，Claude 会要求用正版 Hopper；换 Codex 不会。</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <p>逆向复刻正从少数专家的手艺变成普通开发者可用的产品开发方式。被低估的不是模型能力，而是「成熟软件的行为本身就是最好的规格说明书」。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：杉森楠</li>
+      <li>作者：杉森楠</li>
+      <li>链接：https://mp.weixin.qq.com/s/naysTEAxEyvdGxpcBEQd_A</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/naysTEAxEyvdGxpcBEQd_A" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/naysTEAxEyvdGxpcBEQd_A</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从 Hot Chips 看下一代 AI 芯片：数据流架构的九条路线 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="低延迟推理时代，芯片竞争从 FLOPS 转向「数据在哪、何时到达」：算力/带宽普遍优于 B300，片上 SRAM 更大，编译器决定数据放置与依赖推进。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/hotchips-dataflow-architecture.html">
+<meta property="og:title" content="从 Hot Chips 看下一代 AI 芯片：数据流架构的九条路线">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/hotchips-dataflow-architecture.html">
+<meta property="og:description" content="低延迟推理时代，芯片竞争从 FLOPS 转向「数据在哪、何时到达」：算力/带宽普遍优于 B300，片上 SRAM 更大，编译器决定数据放置与依赖推进。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">从 Hot Chips 看下一代 AI 芯片：数据流架构的九条路线</h1>
+    <p class="note-meta">关耳小兽　·　2026-09-22　·　摘要约 1119 字　·　<a href="https://mp.weixin.qq.com/s/oXeJytaNGj4h7-i1LDw8Ug" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>低延迟推理时代，芯片竞争从 FLOPS 转向「数据在哪、何时到达」：算力/带宽普遍优于 B300，片上 SRAM 更大，编译器决定数据放置与依赖推进。</p>
+      </blockquote>
+      <h2>核心要点</h2>
+      <ul>
+      <li><strong>覆盖对象</strong>：Google TPU 8i、微软 Maia 200、Meta MTIA 300/400、OpenAI Jalapeño、Cerebras WSE-3 Turbo、SambaNova SN50、BOS Eagle-N、Waymo carTPU。</li>
+      <li><strong>TPU 8i</strong>：Boardfly 分层拓扑把 MoE all-to-all 的最大路径压到 7 跳（对比 3D torus 16 跳）；CAE 集合通信加速引擎放在 ICI I/O die 上，官方称相关片上延迟降 5 倍；XLA + Pallas/Mosaic 编译。</li>
+      <li><strong>Maia 200</strong>：SDLA（软件定义局部访问数据流），控制路径与数据路径分离，队列内顺序、队列间信号量同步；TSRAM/CSRAM 全由软件管理。</li>
+      <li><strong>MTIA</strong>：RISC-V 控制核 + 命令处理器 + 环形缓冲做依赖跟踪；最鲜明的是把 AllReduce/AllToAll 交给专用消息引擎 ME，NMC 边搬边归约。</li>
+      <li><strong>Jalapeño</strong>：64 对核-HBM slice 配对，专用 Collective network + 通用 NoC；Gluon 编程，TensorInfo 显式描述布局与物理位置；核内为带 L1 的乱序核心。</li>
+      <li><strong>Cerebras</strong>：权重驻留晶圆 SRAM，激活跨晶圆流动，8 个张量微线程/核，静态配置路由 + 数据到达触发执行。</li>
+      <li><strong>SN50</strong>：可重构数据流处理器，432MB 分布式 SRAM，10×800Gb/s 以太；SN50 带宽与算力最低但片上 SRAM 最大。</li>
+      <li><strong>车载</strong>：Eagle-N（稠密 INT8 250 TOPS）、Waymo carTPU（INT8 160 TOPS / FP16 80 TFLOPS，AOT + mega-kernel，空间线程 + FIFO/信号量）。</li>
+      <li><strong>横向结论三条</strong>：① 除车载外算力/带宽普遍优于 B300（7.75 TB/s），片上 SRAM 更大，是为小 batch 推理；② 通信要看字节数、跳数、可并行比例与不可隐藏等待，不能把单芯片带宽×芯片数当有效带宽；③ 「编译期规划 + 运行时按依赖推进」是共同组合，编译器从单算子代码生成变成联合安排放置、布局、存储生命周期、通信与依赖。</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <p>选型别只看峰值算力。三条可操作的检查：权重与激活的工作集能不能留在片上、小消息通信的启动与同步开销是否被隐藏、编译器能否覆盖真实模型的形状与动态路由。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：关耳小兽观察室</li>
+      <li>作者：关耳小兽</li>
+      <li>链接：https://mp.weixin.qq.com/s/oXeJytaNGj4h7-i1LDw8Ug</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/oXeJytaNGj4h7-i1LDw8Ug" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/oXeJytaNGj4h7-i1LDw8Ug</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端侧 AI Agent 的安全护栏：执行点、语义可见性与审计成本 · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="把「内生还是外建」的路线之争，还原成三个可验证的问题：谁持有执行点、谁看得见语义、谁承担审计成本。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/on-device-agent-guardrails.html">
+<meta property="og:title" content="端侧 AI Agent 的安全护栏：执行点、语义可见性与审计成本">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/on-device-agent-guardrails.html">
+<meta property="og:description" content="把「内生还是外建」的路线之争，还原成三个可验证的问题：谁持有执行点、谁看得见语义、谁承担审计成本。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">端侧 AI Agent 的安全护栏：执行点、语义可见性与审计成本</h1>
+    <p class="note-meta">USTCSweet　·　2026-11-10　·　摘要约 1264 字　·　<a href="https://mp.weixin.qq.com/s/klVuV3yAm-1dSt_NWUim0w" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>把「内生还是外建」的路线之争，还原成三个可验证的问题：谁持有执行点、谁看得见语义、谁承担审计成本。</p>
+      </blockquote>
+      <h2>核心要点</h2>
+      <ul>
+      <li><strong>执行点</strong>：工具调用被允许前、文件写入前、网络请求发出前的强制位置。没有执行点的护栏只是观测或建议系统。执行点分散在内核、容器运行时、浏览器扩展、终端代理、身份代理，同一文件访问在不同智能体里走完全不同的路径。</li>
+      <li><strong>内生是概率防线</strong>：OpenAI 的 instruction hierarchy 按 system/developer/user/tool 四层训练优先级，对未见攻击类型鲁棒性提升、标准能力退化很小——但它是降低期望值，无法对单次请求给确定性保证。缺口在于没人给出失效概率的量级。</li>
+      <li><strong>外建提供确定性边界</strong>：其确定性不来自检测模型多聪明，而来自企业策略上下文——模型训练阶段拿不到的信息。合理定位是对一组明确列举的高风险执行路径做确定性控制，并产生可与内生日志关联的审计事件。</li>
+      <li><strong>供应链三类分开管</strong>：代码依赖（签名、版本锁定、受控仓库，已标准化）；模型与数据资产（来源证明、数据血缘、训练记录，普遍薄弱）；运行时外部服务与 MCP 插件（身份认证、权限约束、行为审计，多数企业无固定动作）。模型权重后门与训练数据投毒无法用签名解决。</li>
+      <li><strong>语义可见性取决于钩子</strong>：参考微软 Defender for Endpoint 的 AI agent runtime protection——用户提示、工具调用前、工具响应后三个检查点，Audit/Block 双模式；CrowdStrike 走行为建模路线（覆盖未知手法，但与语义检测互补）。旁路观测（命令行、流量元数据、文件日志）撑不起语义层。</li>
+      <li><strong>一个外部预判</strong>：Gartner 认为到 2029 年，针对智能体的成功攻击中过半会利用访问控制问题，直接/间接提示注入是投递机制。</li>
+      <li><strong>沙箱不是产品专属</strong>：操作系统本来就持有执行点（Claude Code 在 macOS 用 Seatbelt、Linux/WSL2 用 bubblewrap）。</li>
+      <li><strong>同构场景算总账</strong>：平台原生（Bedrock AgentCore 调 Guardrails、Google Model Armor 内联 Agent Gateway/Runtime/MCP）＋ OS 强制 ＋ 条件访问，往往比外建便宜。外建价值与「智能体生态异构度」正相关，与攻击面大小无关。</li>
+      <li><strong>采购三问</strong>：① 要覆盖的智能体是否跨五家以上厂商；② 框架是否暴露可用钩子（要求现场做一次带工具调用的注入阻断测试，只看仪表盘截图就是失败信号）；③ 智能体身份是否已纳入企业身份目录（Entra Agent ID / SPIFFE-SPIRE），否则只能在用户级做粗放控制。</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <p>判据顺序应该是：先补身份，再要钩子，最后才谈检测算法。算法精度在采购阶段根本验证不了，钩子清单和身份目录却是架构里固定的东西。</p>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：USTCSweet</li>
+      <li>作者：USTCSweet</li>
+      <li>链接：https://mp.weixin.qq.com/s/klVuV3yAm-1dSt_NWUim0w</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/klVuV3yAm-1dSt_NWUim0w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/klVuV3yAm-1dSt_NWUim0w</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>
