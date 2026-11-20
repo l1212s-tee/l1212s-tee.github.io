@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeurIPS 2026｜AI 搜索搜到的图为什么用不了：港科大的图像编号与 ODE · 阅读笔记 | Shuang Liu</title>
+<meta name="description" content="瓶颈不在「搜得到」，而在搜回的图能不能被下一步接住：每张图编号进 image bank，九种工具接力取用；ODE 按 rollout 诊断改出题规则，8B 八项均分 24.9%→39.0%。">
+<link rel="canonical" href="https://l1212s-tee.github.io/notes/ode-visual-native-search.html">
+<meta property="og:title" content="NeurIPS 2026｜AI 搜索搜到的图为什么用不了：港科大的图像编号与 ODE">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://l1212s-tee.github.io/notes/ode-visual-native-search.html">
+<meta property="og:description" content="瓶颈不在「搜得到」，而在搜回的图能不能被下一步接住：每张图编号进 image bank，九种工具接力取用；ODE 按 rollout 诊断改出题规则，8B 八项均分 24.9%→39.0%。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+<link rel="stylesheet" href="../css/font.css">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .wrapper{max-width:790px;margin:0 auto;padding:2.5rem 1.4rem;}
+  .note-top{display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #e5e5e5;padding-bottom:0.6rem;margin-bottom:1.6rem;}
+  .note-top h1{font-size:1.4rem;margin:0;color:#043361;}
+  .note-top a{font-size:0.95rem;color:#2a5d9f;text-decoration:none;}
+  .note-title{font-size:1.75rem;line-height:1.35;margin:0 0 0.6rem 0;color:#043361;font-weight:600;}
+  .note-meta{font-size:0.88rem;color:#888;margin:0 0 1.6rem 0;}
+  .note-meta .note-author{color:#2a5d9f;margin-right:0.5rem;}
+  .note-meta a{color:#2a5d9f;text-decoration:none;}
+  .note-body{font-size:1.02rem;line-height:1.75;color:#3d3d3d;}
+  .note-body h2{font-size:1.22rem;color:#043361;border-bottom:1px solid #e5e5e5;padding-bottom:0.3rem;margin:2rem 0 0.7rem 0;}
+  .note-body h3{font-size:1.05rem;color:#043361;margin:1.5rem 0 0.5rem 0;}
+  .note-body p{margin:0 0 1rem 0;}
+  .note-body ul,.note-body ol{margin:0 0 1.1rem 0;padding-left:1.4rem;}
+  .note-body li{margin:0.3rem 0;}
+  .note-body blockquote{border-left:3px solid #2a5d9f;background:#f7fafd;margin:0 0 1.6rem 0;padding:0.8rem 1rem;color:#2a3f55;font-style:normal;}
+  .note-body blockquote p:last-child{margin-bottom:0;}
+  .note-body strong{color:#222;font-weight:600;}
+  .note-body table{width:100%;border-collapse:collapse;margin:0 0 1.4rem 0;font-size:0.94rem;}
+  .note-body th,.note-body td{border-bottom:1px solid #e5e5e5;padding:0.4rem 0.6rem;text-align:left;vertical-align:top;}
+  .note-body code{background:#f5f6f8;border-radius:3px;padding:0.1rem 0.3rem;font-size:0.9em;}
+  .note-body pre{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:4px;padding:0.8rem 1rem;overflow-x:auto;}
+  .note-foot{border-top:1px solid #e5e5e5;margin-top:2.2rem;padding-top:0.9rem;font-size:0.88rem;color:#888;}
+  .note-foot a{color:#2a5d9f;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="note-top">
+    <h1>阅读笔记</h1>
+    <a href="../blog.html"><i class="fas fa-arrow-left"></i> 返回 Blog / 全部归档</a>
+  </div>
+  <article>
+    <h1 class="note-title">NeurIPS 2026｜AI 搜索搜到的图为什么用不了：港科大的图像编号与 ODE</h1>
+    <p class="note-meta">机器之心　·　2026-11-15　·　摘要约 1400 字　·　<a href="https://mp.weixin.qq.com/s/W-4Icml1K14esNOLes9Thw" target="_blank" rel="noopener">阅读原文 ↗</a></p>
+    <div class="note-body">
+      <blockquote>
+      <p>瓶颈不在「搜得到」，而在「搜回的图能不能被下一步接住」。给每张图编号、让工具接力用同一张图；再用 ODE 按解题记录改出题规则。</p>
+      </blockquote>
+      <h2>问题：图看得见，但交不出去</h2>
+      <p>示例链条：雪山照片 → 裁出山脊 → 以图搜图找到「折多山」→ 查网页 → 把搜到的另一张照片<strong>放大</strong>核对 → 锁定垭口。卡点在最后那次放大：多数多模态搜索系统里，模型能看见刚搜回的照片，却没法把这张图交给下一个工具。</p>
+      <h2>方案一：视觉原生智能体框架</h2>
+      <ul>
+      <li>支持<strong>九种工具</strong>：检索网页/论文/图片、打开来源页、放大、旋转、用 Python 计算</li>
+      <li>题目原图与工具返回的新图都存进同一个 <strong>image bank</strong>，每张图有独立编号</li>
+      <li>任何工具都能按编号接着用同一张图——这就是「接得住」</li>
+      </ul>
+      <h2>方案二：ODE（On-policy Data Evolution）</h2>
+      <ul>
+      <li>一次「搜索 → 调工具 → 给答案」全过程称为一次 <strong>rollout</strong></li>
+      <li>出题器先找至少两个独立来源能核实的对象，挑有细节（图例/数字/标记）的图，组织成<strong>证据图</strong>，再从中选相连线索编题并删掉泄漏答案的提示</li>
+      <li>每轮出 32 道题，目标模型逐题 rollout（参数不变）；<strong>分析器</strong>对照解题记录诊断，通过审核的改动写进下一轮规则</li>
+      <li>最多演化 <strong>五轮</strong>；RL 题用目标模型跑，SFT 示范用教师模型 <strong>GPT-5.2</strong> 跑；规则可撤回</li>
+      </ul>
+      <p><strong>案例</strong>：1948 年联合国地图题，模型漏数托管领土、把西南非洲算进去；正确答案是图上 10 个 / 初始 11 个 ≈ <strong>91%</strong>。分析器据此要求数量线索逐项以图搜图核实、视觉操作上限 4→5 步、带图线索占比 50%→40%；到巴尔的摩港航道图又因「题太难」把占比回调到 50%。</p>
+      <h2>关键数字</h2>
+      <ul>
+      <li>8B 八项均分 24.9% → <strong>39.0%</strong>；30B 30.6% → <strong>41.5%</strong></li>
+      <li>Qwen3-VL-30B 拆解：标准流程 24.8% → 换框架 30.6% → +SFT 39.5% → +RL <strong>41.5%</strong></li>
+      <li>MMSearch（8B）：47.3% → 61.7% → <strong>66.0%</strong></li>
+      <li>商业模型同框架：Gemini 2.5 Flash 32.0%→<strong>35.55%</strong>；Pro 37.9%→<strong>42.21%</strong>；GPT-5 七项全升，均分 <strong>44.41%</strong></li>
+      <li>ODE-30B-A3B-RL <strong>41.53%</strong>，与 Gemini 2.5 Pro 仅差 <strong>0.68pp</strong></li>
+      <li>图像复用（MMBC）：约<strong>四成</strong>题目用到旧图；关闭复用 7.59% → 全保留 <strong>12.50%</strong>；306 次复用中 191 次放大、113 次以图搜图</li>
+      <li>等量对照（各 2,000 条 SFT）：含 ≥4 张工具图的示范 10.5% → <strong>42.9%</strong>；含图像操作+搜索 35.3% → <strong>54.8%</strong></li>
+      <li>等量对照（各 4,000 题 RL）：MMBC 上 8.5%（SFT 后）→ 固定规则 <strong>5.8%</strong> → ODE <strong>12.5%</strong></li>
+      <li>工具调用形态：SFT 教师 15.94→<strong>12.19</strong> 次、返回图 1.25→<strong>3.75</strong> 张；8B 做 RL 题 6.14→<strong>15.33</strong> 次、图 3.07→<strong>11.00</strong> 张</li>
+      </ul>
+      <h2>值得记住的结论</h2>
+      <ul>
+      <li>多模态搜索的下一道门槛是<strong>上下文接力</strong>：图片要有稳定标识，才能被后续工具复用</li>
+      <li>数据合成不只调「题量」，要按 rollout 诊断调「出题规则」，而且要能撤回改错的规则</li>
+      <li>训练出的 30B（41.53%）已逼近 Gemini 2.5 Pro（42.21%）——框架与数据的工程收益，可以部分替代模型规模</li>
+      </ul>
+      <h2>原文信息</h2>
+      <ul>
+      <li>公众号：机器之心（2026-11-15 17:17）</li>
+      <li>论文：Towards On-Policy Data Evolution for Visual-Native Multimodal Deep Search Agents（arXiv 2605.10832）</li>
+      <li>代码：github.com/JoeYing1019/ODE</li>
+      <li>链接：https://mp.weixin.qq.com/s/W-4Icml1K14esNOLes9Thw</li>
+      </ul>
+    </div>
+    <p class="note-foot">原文：<a href="https://mp.weixin.qq.com/s/W-4Icml1K14esNOLes9Thw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/W-4Icml1K14esNOLes9Thw</a>　·　摘要整理自 Obsidian vault，仅供参考，论断与数字以原文为准。</p>
+  </article>
+</div>
+</body>
+</html>
