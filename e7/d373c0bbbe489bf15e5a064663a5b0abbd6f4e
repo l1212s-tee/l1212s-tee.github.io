@@ -1,0 +1,14 @@
+blog.html
+  h_2e766464862d48 55-56,58-74,76-99,108-145,147-189,207-261,263-272,274-302,304-323
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "e7d373c0bbbe489bf15e5a064663a5b0abbd6f4e",
+  "prompts": {},
+  "humans": {
+    "h_2e766464862d48": {
+      "author": "shuang liu <ls123674@antgroup.com>"
+    }
+  }
+}
